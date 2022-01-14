@@ -78,6 +78,8 @@ func UploadImg(filePath, token string) (string, error) {
 		var respJSON uploadResp
 		if err = json.Unmarshal(body, &respJSON); err == nil && respJSON.Success {
 			return respJSON.Data.URL, nil
+		} else {
+			return "", errors.New(respJSON.Code)
 		}
 	}
 	return "", err
