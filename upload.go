@@ -44,12 +44,12 @@ const (
 // accept formats:
 // jpe,jpg,jpeg,gif,png,bmp,ico,svg,svgz,tif,tiff,ai,drw,pct,psp,xcf,psd,raw,webp
 func UploadImg(filePath, token string) (string, error) {
-	var err error
 	if support := strings.ContainsAny(filepath.Ext(filePath), acceptFormats); !support {
 		return "", errors.New("file format is unsuppoted : " + filepath.Ext(filePath))
 	}
+	fo, err := os.Open(filePath)
 
-	if fo, err := os.Open(filePath); err == nil {
+	if err == nil {
 		defer fo.Close()
 
 		formBuffer := bytes.NewBuffer(nil)
