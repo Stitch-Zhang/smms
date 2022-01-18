@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"mime"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -35,8 +36,7 @@ type uploadResp struct {
 
 // SMMSENDPOINT SM.MSP V2 API ENDPOINT
 const (
-	smmsEndpoint  = "https://sm.ms/api/v2"
-	acceptFormats = "jpe|jpg|jpeg|gif|png|bmp|ico|svg|svgz|tif|tiff|ai|drw|pct|psp|xcf|psd|raw|webp"
+	smmsEndpoint = "https://sm.ms/api/v2"
 )
 
 // UploadImg upload image to SMMS
@@ -44,7 +44,8 @@ const (
 // accept formats:
 // jpe,jpg,jpeg,gif,png,bmp,ico,svg,svgz,tif,tiff,ai,drw,pct,psp,xcf,psd,raw,webp
 func UploadImg(filePath, token string) (string, error) {
-	if support := strings.ContainsAny(filepath.Ext(filePath), acceptFormats); !support {
+	fileMime := mime.TypeByExtension(filepath.Ext(filePath))
+	if support := strings.Contains(fileMime, "image"); !support {
 		return "", errors.New("file format is unsuppoted : " + filepath.Ext(filePath))
 	}
 	fo, err := os.Open(filePath)
@@ -78,9 +79,8 @@ func UploadImg(filePath, token string) (string, error) {
 		var respJSON uploadResp
 		if err = json.Unmarshal(body, &respJSON); err == nil && respJSON.Success {
 			return respJSON.Data.URL, nil
-		} else {
-			return "", errors.New(respJSON.Code)
 		}
+		return "", errors.New(respJSON.Code)
 	}
 	return "", err
 }
